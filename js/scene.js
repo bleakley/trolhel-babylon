@@ -8,6 +8,12 @@ const WEST = 3;
 const UP = 4;
 const DOWN = 5;
 
+BABYLON.ArcRotateCamera.prototype.spinTo = function (whichprop, targetval, speed) {
+    var ease = new BABYLON.CubicEase();
+    ease.setEasingMode(BABYLON.EasingFunction.EASINGMODE_EASEINOUT);
+	BABYLON.Animation.CreateAndStartAnimation('at4', this, whichprop, speed, 120, this[whichprop], targetval, 0, ease);
+}
+
 function addPlane(scene, x, y, z, direction) {
     let myMaterial = new BABYLON.StandardMaterial("myMaterial", scene);
     let floorImage = `./td_world/td_world_floor_mossy_${_.sample(['a','b','c','d','e'])}.png`;
@@ -67,13 +73,8 @@ export function createScene(engine, canvas, axes=false) {
     // This creates a basic Babylon Scene object (non-mesh)
     var scene = new BABYLON.Scene(engine);
 
-    // Parameters : name, position, scene
-    var camera = new BABYLON.UniversalCamera("UniversalCamera", new BABYLON.Vector3(0, -10, 10), scene);
-
-    // Targets the camera to a particular position. In this case the scene origin
-    camera.setTarget(BABYLON.Vector3.Zero());
-
-    // Attach the camera to the canvas
+    var camera = new BABYLON.ArcRotateCamera("camera1", -Math.PI/2, 0.8, 25, new BABYLON.Vector3(0, 1, 0), scene);
+    camera.upVector = new BABYLON.Vector3(0, 0, 1);
     camera.attachControl(canvas, true);
 
     if (axes) {
@@ -102,10 +103,7 @@ export function createScene(engine, canvas, axes=false) {
     sprite2.position.y = 1;
     sprite2.position.z = 2;
 
-    scene.registerBeforeRender(function () {
-        sprite2.angle = Math.PI - camera.rotation.y;
-        sprite1.angle = Math.PI - camera.rotation.y;
-    });
+    camera.spinTo("alpha", 1.2, 20);
 
     return scene;
 }
